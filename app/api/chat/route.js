@@ -11,7 +11,7 @@ Anh/chị đi ${profile.people || "theo nhóm gia đình"}, ${profile.children |
 
 Đào sẽ ưu tiên lịch trình gia đình thoải mái, ít mệt và phù hợp trẻ nhỏ.
 
-Anh/chị là khách Việt, Nga hay quốc gia nào ạ?`
+Anh/chị muốn Đào tư vấn bằng tiếng Việt, English, Русский, 中文 hay 한국어 ạ?
   });
 }
   const msg = (message || "").toLowerCase();
