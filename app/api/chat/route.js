@@ -2,12 +2,12 @@ export const runtime = "nodejs";
 
 export async function POST(req) {
   const { message, profile = {} } = await req.json();
-  if (profile.days && profile.people && profile.children) {
+if (profile.days && (profile.people || message.includes("người")) && (profile.children || message.includes("trẻ em") || message.includes("con") || message.includes("bé"))) {
   return Response.json({
     reply:
       `Dạ em hiểu rồi ạ.
 
-Anh/chị đi ${profile.people}, ${profile.children}, thời gian ${profile.days}.
+Anh/chị đi ${profile.people || "theo nhóm gia đình"}, ${profile.children || "có trẻ em"}, thời gian ${profile.days}.
 
 Đào sẽ ưu tiên lịch trình gia đình thoải mái, ít mệt và phù hợp trẻ nhỏ.
 
