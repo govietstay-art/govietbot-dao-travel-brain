@@ -1,56 +1,26 @@
-import fs from "fs";
-import path from "path";
 export const runtime = "nodejs";
-
-function readMarkdownFiles(dir) {
-  let results = [];
-  if (!fs.existsSync(dir)) return results;
-
-  for (const file of fs.readdirSync(dir)) {
-    const fullPath = path.join(dir, file);
-    const stat = fs.statSync(fullPath);
-
-    if (stat.isDirectory() && !["node_modules", ".git", ".next", "app"].includes(file)) {
-      results = results.concat(readMarkdownFiles(fullPath));
-    } else if (file.endsWith(".md")) {
-      results.push({ file, content: fs.readFileSync(fullPath, "utf8") });
-    }
-  }
-  return results;
-}
-
-function findBestKnowledge(message, knowledge) {
-  const msg = message.toLowerCase();
-  const words = msg.split(/\s+/).filter((w) => w.length > 2);
-
-  return knowledge
-    .map((item) => {
-      const text = item.content.toLowerCase();
-      let score = 0;
-      for (const word of words) if (text.includes(word)) score++;
-      return { ...item, score };
-    })
-    .sort((a, b) => b.score - a.score)[0];
-}
 
 export async function POST(req) {
   const { message } = await req.json();
+  const msg = (message || "").toLowerCase();
 
-  const knowledge = readMarkdownFiles(process.cwd());
+  let reply = "";
 
-console.log("CWD:", process.cwd());
-console.log("KNOWLEDGE FILES:", knowledge.length);
-
-const best = findBestKnowledge(message, knowledge);
-
-  let reply;
-
-  if (best && best.score > 0 && best.content.trim().length > 20) {
+  if (msg.includes("mưa") || msg.includes("rain")) {
     reply =
-      "Em hiểu rồi ạ. Em là Đào – Local Travel Assistant tại Đà Nẵng.\n\n" +
-      "Dựa trên Travel Brain của GoVietStay, em gợi ý theo hướng phù hợp và dễ đi nhất:\n\n" +
-      best.content.slice(0, 900) +
-      "\n\nNếu anh/chị muốn em thiết kế lịch trình riêng kiểu Omakase, mình có thể trao đổi nhanh qua WhatsApp: +84 937 762 607";
+      "Nếu đang mưa ở Đà Nẵng, mình không nên ép lịch trình ngoài trời ạ. Em gợi ý đi theo hướng nhẹ nhàng hơn: cafe đẹp, massage thư giãn, ăn uống địa phương, hoặc lịch trình trong nhà. Anh/chị đang ở khu Mỹ Khê, Sơn Trà hay trung tâm Đà Nẵng ạ?";
+  } else if (msg.includes("nga") || msg.includes("russian")) {
+    reply =
+      "Dạ em hiểu rồi ạ. Với gia đình khách Nga đi cùng vợ và 2 bé, Đào sẽ ưu tiên lịch trình thoải mái, ít mệt, có thời gian biển, ăn uống dễ chịu và các điểm nổi bật như Ba Na Hills, Hội An hoặc Omakase Family Experience. Hai bé khoảng bao nhiêu tuổi ạ?";
+  } else if (msg.includes("3 ngày") || msg.includes("3 days") || msg.includes("2 đêm")) {
+    reply =
+      "Dạ 3 ngày 2 đêm ở Đà Nẵng là lịch trình rất đẹp ạ. Đào sẽ không vội báo giá trước, mình nên thiết kế lịch trình theo nhóm khách trước. Anh/chị đi mấy người ạ, có trẻ em hoặc người lớn tuổi đi cùng không?";
+  } else if (msg.includes("giá") || msg.includes("bao nhiêu") || msg.includes("price")) {
+    reply =
+      "Dạ em có thể báo giá, nhưng để báo đúng và không làm anh/chị bị rối, Đào cần biết mình đi mấy người và muốn đi private tour hay ghép lịch trình nhẹ nhàng hơn ạ?";
+  } else if (msg.includes("omakase")) {
+    reply =
+      "Omakase Experience là trải nghiệm Đào thiết kế riêng cho khách. Anh/chị không cần tự chọn tour trước, Đào sẽ dựa vào số ngày, số người, sở thích, thời tiết và ngân sách để gợi ý hành trình phù hợp nhất. Anh/chị thích thiên nhiên, nghỉ dưỡng, chụp ảnh hay khám phá địa phương ạ?";
   } else {
     reply =
       "Em là Đào – Local Travel Assistant tại Đà Nẵng. Em có thể hỗ trợ Ba Na Hills, Hội An, Huế, Omakase Experience, SIM, airport transfer và local tips. Anh/chị đi mấy người và ở Đà Nẵng mấy ngày ạ?";
