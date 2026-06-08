@@ -4,15 +4,30 @@ import { useState } from "react";
 
 export default function Home() {
   const [messages, setMessages] = useState([
-    { role: "dao", text: "Xin chào, em là Đào – Local Travel Assistant tại Đà Nẵng. Anh/chị muốn em hỗ trợ lịch trình, tour, SIM, airport transfer hay Omakase Experience ạ?" }
+    {
+      role: "dao",
+      text: "Xin chào, em là Đào – Local Travel Assistant tại Đà Nẵng. Anh/chị muốn em hỗ trợ lịch trình, tour, SIM, airport transfer hay Omakase Experience ạ?"
+    }
   ]);
+
   const [input, setInput] = useState("");
+  const [isThinking, setIsThinking] = useState(false);
 
   async function sendMessage() {
-    if (!input.trim()) return;
+    if (!input.trim() || isThinking) return;
+
     const userMessage = input;
     setInput("");
+
     setMessages((prev) => [...prev, { role: "user", text: userMessage }]);
+    setIsThinking(true);
+
+    setMessages((prev) => [
+      ...prev,
+      { role: "dao", text: "Đào đang xem phương án phù hợp nhất cho anh/chị..." }
+    ]);
+
+    await new Promise((resolve) => setTimeout(resolve, 1600));
 
     const res = await fetch("/api/chat", {
       method: "POST",
@@ -20,19 +35,15 @@ export default function Home() {
       headers: { "Content-Type": "application/json" }
     });
 
-   setMessages((prev) => [
-  ...prev,
-  { role: "dao", text: "Đào đang xem phương án phù hợp nhất cho anh/chị..." }
-]);
+    const data = await res.json();
 
-await new Promise((resolve) => setTimeout(resolve, 1600));
+    setMessages((prev) => [
+      ...prev.slice(0, -1),
+      { role: "dao", text: data.reply }
+    ]);
 
-const data = await res.json();
-
-setMessages((prev) => [
-  ...prev.slice(0, -1),
-  { role: "dao", text: data.reply }
-]);
+    setIsThinking(false);
+  }
 
   return (
     <main style={{ maxWidth: 720, margin: "40px auto", padding: 20, fontFamily: "Arial" }}>
@@ -42,7 +53,16 @@ setMessages((prev) => [
       <div style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16, minHeight: 400 }}>
         {messages.map((m, i) => (
           <div key={i} style={{ marginBottom: 14, textAlign: m.role === "user" ? "right" : "left" }}>
-            <div style={{ display: "inline-block", padding: 12, borderRadius: 12, background: m.role === "user" ? "#DCF8C6" : "#F1F1F1", maxWidth: "80%", whiteSpace: "pre-wrap" }}>
+            <div
+              style={{
+                display: "inline-block",
+                padding: 12,
+                borderRadius: 12,
+                background: m.role === "user" ? "#DCF8C6" : "#F1F1F1",
+                maxWidth: "80%",
+                whiteSpace: "pre-wrap"
+              }}
+            >
               {m.text}
             </div>
           </div>
@@ -50,8 +70,17 @@ setMessages((prev) => [
       </div>
 
       <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
-        <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && sendMessage()} placeholder="Ask Đào..." style={{ flex: 1, padding: 12, borderRadius: 8, border: "1px solid #ccc" }} />
-        <button onClick={sendMessage} style={{ padding: "12px 18px", borderRadius: 8 }}>Send</button>
+        <input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          placeholder="Ask Đào..."
+          disabled={isThinking}
+          style={{ flex: 1, padding: 12, borderRadius: 8, border: "1px solid #ccc" }}
+        />
+        <button onClick={sendMessage} disabled={isThinking} style={{ padding: "12px 18px", borderRadius: 8 }}>
+          Send
+        </button>
       </div>
     </main>
   );
