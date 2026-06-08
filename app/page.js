@@ -20,9 +20,19 @@ export default function Home() {
       headers: { "Content-Type": "application/json" }
     });
 
-    const data = await res.json();
-    setMessages((prev) => [...prev, { role: "dao", text: data.reply }]);
-  }
+   setMessages((prev) => [
+  ...prev,
+  { role: "dao", text: "Đào đang xem phương án phù hợp nhất cho anh/chị..." }
+]);
+
+await new Promise((resolve) => setTimeout(resolve, 1600));
+
+const data = await res.json();
+
+setMessages((prev) => [
+  ...prev.slice(0, -1),
+  { role: "dao", text: data.reply }
+]);
 
   return (
     <main style={{ maxWidth: 720, margin: "40px auto", padding: 20, fontFamily: "Arial" }}>
