@@ -2,7 +2,7 @@ export const runtime = "nodejs";
 
 export async function POST(req) {
   const { message, profile = {} } = await req.json();
-if (profile.days && (profile.people || message.includes("người")) && (profile.children || message.includes("trẻ em") || message.includes("con") || message.includes("bé"))) {
+if (profile.travelStyle === "family" && profile.people && profile.children) {
   return Response.json({
     reply:
       `Dạ em hiểu rồi ạ.
