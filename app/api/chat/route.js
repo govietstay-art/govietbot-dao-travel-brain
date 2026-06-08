@@ -1,7 +1,7 @@
 export const runtime = "nodejs";
 
 export async function POST(req) {
-  const { message } = await req.json();
+  const { message, profile = {} } = await req.json();
   const msg = (message || "").toLowerCase();
 
   let reply = "";
