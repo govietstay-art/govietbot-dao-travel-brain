@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+export const runtime = "nodejs";
 
 function readMarkdownFiles(dir) {
   let results = [];
