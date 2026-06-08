@@ -21,20 +21,106 @@ export default function Home() {
   });
 
   function updateProfile(message, currentProfile) {
-    const msg = message.toLowerCase();
-    const next = { ...currentProfile };
+   function updateProfile(message, currentProfile) {
+  const msg = message.toLowerCase();
+  const next = { ...currentProfile };
 
-    if (msg.includes("3 ngày") || msg.includes("3 days") || msg.includes("2 đêm")) {
-      next.days = "3 ngày 2 đêm";
-    }
+  // Trip duration detection
+  if (msg.includes("3 ngày") || msg.includes("3 days") || msg.includes("2 đêm")) {
+    next.days = "3 ngày 2 đêm";
+  }
 
-    if (msg.includes("nga") || msg.includes("russian")) {
-      next.nationality = "Russian";
-    }
+  // People number detection
+  const peopleMatch = msg.match(/(\d+)\s*(người|khách|pax|people)/);
+  if (peopleMatch) {
+    next.people = peopleMatch[1] + " người";
+  }
 
-    if (msg.includes("trẻ em") || msg.includes("con") || msg.includes("bé")) {
-      next.children = "có trẻ em";
-    }
+  // Children detection
+  if (
+    msg.includes("trẻ em") ||
+    msg.includes("con") ||
+    msg.includes("bé") ||
+    msg.includes("child") ||
+    msg.includes("children") ||
+    msg.includes("kids")
+  ) {
+    next.children = "có trẻ em";
+  }
+
+  // Family detection
+  if (
+    msg.includes("gia đình") ||
+    msg.includes("vợ") ||
+    msg.includes("chồng") ||
+    msg.includes("con") ||
+    msg.includes("family") ||
+    msg.includes("wife") ||
+    msg.includes("husband") ||
+    msg.includes("kids") ||
+    msg.includes("children")
+  ) {
+    next.travelStyle = "family";
+  }
+
+  // Auto infer people from family phrases
+  if (
+    (msg.includes("vợ") && msg.includes("2 con")) ||
+    (msg.includes("wife") && msg.includes("2 children"))
+  ) {
+    next.people = "4 người";
+    next.children = "có 2 trẻ em";
+    next.travelStyle = "family";
+  }
+
+  if (
+    (msg.includes("vợ") && msg.includes("1 con")) ||
+    (msg.includes("wife") && msg.includes("1 child"))
+  ) {
+    next.people = "3 người";
+    next.children = "có 1 trẻ em";
+    next.travelStyle = "family";
+  }
+
+  // Nationality detection
+  if (msg.includes("nga") || msg.includes("russian") || msg.includes("рус")) {
+    next.nationality = "Russian";
+    next.language = "Russian";
+  }
+
+  if (msg.includes("hàn") || msg.includes("korean") || msg.includes("한국")) {
+    next.nationality = "Korean";
+    next.language = "Korean";
+  }
+
+  if (msg.includes("trung") || msg.includes("chinese") || msg.includes("中国")) {
+    next.nationality = "Chinese";
+    next.language = "Chinese";
+  }
+
+  if (msg.includes("việt") || msg.includes("vietnamese")) {
+    next.nationality = "Vietnamese";
+    next.language = "Vietnamese";
+  }
+
+  if (msg.includes("india") || msg.includes("ấn độ") || msg.includes("indian")) {
+    next.nationality = "Indian";
+    next.language = "English";
+  }
+
+  if (msg.includes("german") || msg.includes("đức")) {
+    next.nationality = "German";
+    next.language = "English";
+  }
+
+  // Interest detection
+  if (msg.includes("thiên nhiên")) next.interest = "thiên nhiên";
+  if (msg.includes("nghỉ dưỡng")) next.interest = "nghỉ dưỡng";
+  if (msg.includes("chụp ảnh")) next.interest = "chụp ảnh";
+  if (msg.includes("ẩm thực") || msg.includes("ăn")) next.interest = "ẩm thực";
+
+  return next;
+}
 
     const peopleMatch = msg.match(/(\d+)\s*(người|khách|pax|people)/);
     if (peopleMatch) {
