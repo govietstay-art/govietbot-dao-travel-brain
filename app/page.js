@@ -12,12 +12,51 @@ export default function Home() {
 
   const [input, setInput] = useState("");
   const [isThinking, setIsThinking] = useState(false);
+  const [profile, setProfile] = useState({
+    days: "",
+    people: "",
+    children: "",
+    nationality: "",
+    interest: ""
+  });
+
+  function updateProfile(message, currentProfile) {
+    const msg = message.toLowerCase();
+    const next = { ...currentProfile };
+
+    if (msg.includes("3 ngày") || msg.includes("3 days") || msg.includes("2 đêm")) {
+      next.days = "3 ngày 2 đêm";
+    }
+
+    if (msg.includes("nga") || msg.includes("russian")) {
+      next.nationality = "Russian";
+    }
+
+    if (msg.includes("trẻ em") || msg.includes("con") || msg.includes("bé")) {
+      next.children = "có trẻ em";
+    }
+
+    const peopleMatch = msg.match(/(\d+)\s*(người|khách|pax|people)/);
+    if (peopleMatch) {
+      next.people = peopleMatch[1] + " người";
+    }
+
+    if (msg.includes("thiên nhiên")) next.interest = "thiên nhiên";
+    if (msg.includes("nghỉ dưỡng")) next.interest = "nghỉ dưỡng";
+    if (msg.includes("chụp ảnh")) next.interest = "chụp ảnh";
+    if (msg.includes("ẩm thực") || msg.includes("ăn")) next.interest = "ẩm thực";
+
+    return next;
+  }
 
   async function sendMessage() {
     if (!input.trim() || isThinking) return;
 
     const userMessage = input;
+    const newProfile = updateProfile(userMessage, profile);
+
     setInput("");
+    setProfile(newProfile);
 
     setMessages((prev) => [...prev, { role: "user", text: userMessage }]);
     setIsThinking(true);
@@ -31,7 +70,10 @@ export default function Home() {
 
     const res = await fetch("/api/chat", {
       method: "POST",
-      body: JSON.stringify({ message: userMessage }),
+      body: JSON.stringify({
+        message: userMessage,
+        profile: newProfile
+      }),
       headers: { "Content-Type": "application/json" }
     });
 
