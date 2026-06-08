@@ -2,6 +2,18 @@ export const runtime = "nodejs";
 
 export async function POST(req) {
   const { message, profile = {} } = await req.json();
+  if (profile.days && profile.people && profile.children) {
+  return Response.json({
+    reply:
+      `Dạ em hiểu rồi ạ.
+
+Anh/chị đi ${profile.people}, ${profile.children}, thời gian ${profile.days}.
+
+Đào sẽ ưu tiên lịch trình gia đình thoải mái, ít mệt và phù hợp trẻ nhỏ.
+
+Anh/chị là khách Việt, Nga hay quốc gia nào ạ?`
+  });
+}
   const msg = (message || "").toLowerCase();
 
   let reply = "";
