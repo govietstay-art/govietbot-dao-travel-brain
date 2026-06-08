@@ -37,7 +37,11 @@ export async function POST(req) {
   const { message } = await req.json();
 
   const knowledge = readMarkdownFiles(process.cwd());
-  const best = findBestKnowledge(message, knowledge);
+
+console.log("CWD:", process.cwd());
+console.log("KNOWLEDGE FILES:", knowledge.length);
+
+const best = findBestKnowledge(message, knowledge);
 
   let reply;
 
