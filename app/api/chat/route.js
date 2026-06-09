@@ -6,7 +6,13 @@ export async function POST(req) {
 
   const ask = (text) => Response.json({ reply: text });
 
-  const hasProfile = profile.people || profile.days || profile.nationality || profile.interest || profile.destination;
+  const hasProfile =
+    profile.people ||
+    profile.days ||
+    profile.nationality ||
+    profile.interest ||
+    profile.destination ||
+    profile.lastTopic;
 
   const peopleText = profile.people || "nhóm mình";
   const daysText = profile.days || "thời gian ở Đà Nẵng";
@@ -17,7 +23,6 @@ export async function POST(req) {
       ? `khách ${profile.nationality}`
       : "khách";
 
-  // Intent detection
   const isHoiAn = msg.includes("hội an") || msg.includes("hoi an");
   const isBaNa = msg.includes("bà nà") || msg.includes("ba na") || msg.includes("golden bridge");
   const isHue = msg.includes("huế") || msg.includes("hue");
@@ -38,7 +43,13 @@ export async function POST(req) {
   const wantsBeachStay = msg.includes("gần biển") || msg.includes("near beach") || msg.includes("beach hotel");
   const wantsCenterStay = msg.includes("trung tâm") || msg.includes("center") || msg.includes("city center");
 
-  // Number of people follow-up
+  const isDinner = msg.includes("ăn tối") || msg.includes("dinner");
+  const isWhatToEat =
+    msg.includes("ăn gì") ||
+    msg.includes("cái gì ngon") ||
+    msg.includes("món gì ngon") ||
+    msg.includes("what to eat");
+
   const peopleMatch = msg.match(/(\d+)\s*(người|pax|people|persons|khách)/);
 
   if (peopleMatch && !isThreeDays) {
@@ -63,7 +74,25 @@ Anh/chị muốn lịch trình thiên về nghỉ dưỡng, khám phá địa ph
 Anh/chị ở Đà Nẵng mấy ngày để Đào gợi ý lịch trình phù hợp hơn ạ?`);
   }
 
-  // Natural short replies with memory
+  if ((isDinner || isWhatToEat) && profile.lastTopic === "hoi_an") {
+    return ask(`Dạ nếu ăn tối ở Hội An thì Đào gợi ý vài hướng dễ chọn ạ:
+
+• Muốn local: cao lầu, cơm gà Hội An, mì Quảng
+• Muốn nhẹ nhàng đẹp: nhà hàng ven sông Hoài
+• Muốn trải nghiệm: ăn tối xong đi thuyền, thả hoa đăng
+• Đi gia đình/khách nước ngoài: nên chọn chỗ sạch, dễ ăn, không quá đông
+
+Anh/chị muốn ăn kiểu local bình dân hay nhà hàng đẹp ven sông ạ?`);
+  }
+
+  if ((isDinner || isWhatToEat) && hasProfile) {
+    return ask(`Dạ nếu nói về ăn uống, Đào sẽ chọn theo lịch trình của mình ạ.
+
+Với ${peopleText}, ${daysText}${profile.destination ? `, đang quan tâm ${profile.destination}` : ""}, mình nên chọn món dễ ăn, sạch sẽ và thuận tiện đường đi.
+
+Anh/chị muốn ăn local bình dân hay nhà hàng thoải mái hơn ạ?`);
+  }
+
   if (wantsBeachStay && hasProfile) {
     return ask(`Dạ gần biển là lựa chọn rất hợp ạ.
 
@@ -120,7 +149,6 @@ Anh/chị thích biển hay núi hơn ạ?`);
     }
   }
 
-  // Clear intents
   if (isFun) {
     return ask("Dạ Đà Nẵng có nhiều thứ vui lắm ạ. Nếu lần đầu đến, em gợi ý mình chia nhẹ thành: biển Mỹ Khê, Sơn Trà, Hội An buổi tối, Ba Na Hills, ăn hải sản, cafe đẹp và massage thư giãn. Anh/chị đi mấy ngày để em gợi ý lịch trình vừa sức hơn ạ?");
   }
@@ -173,13 +201,12 @@ Anh/chị muốn lịch trình thiên về nghỉ dưỡng, khám phá địa ph
     return ask("Dạ để em hỗ trợ nhanh và kiểm tra lịch/xe/tour chính xác hơn, anh/chị có thể nhắn trực tiếp WhatsApp GoVietStay: +84 937 762 607 ạ.");
   }
 
-  // Profile-based fallback: never reset if we already know something
   if (profile.people && profile.days && profile.interest) {
     return ask(`Dạ em đang có thông tin chính:
 
 • ${profile.people}
 • ${profile.days}
-• Ưu tiên: ${profile.interest}${profile.nationality === "russian" ? "\n• Khách Nga" : ""}
+• Ưu tiên: ${profile.interest}${profile.destination ? `\n• Đang quan tâm: ${profile.destination}` : ""}${profile.nationality === "russian" ? "\n• Khách Nga" : ""}
 
 Đào sẽ thiết kế lịch trình theo hướng nhẹ, đúng nhu cầu và không chạy quá nhiều điểm.
 
@@ -187,7 +214,7 @@ Anh/chị muốn Đào gợi ý lịch trình mẫu 3 ngày luôn không ạ?`);
   }
 
   if (profile.people && profile.days) {
-    return ask(`Dạ em đã có thông tin chính: ${profile.people}, ${profile.days}${profile.nationality === "russian" ? ", khách Nga" : ""}.
+    return ask(`Dạ em đã có thông tin chính: ${profile.people}, ${profile.days}${profile.nationality === "russian" ? ", khách Nga" : ""}${profile.destination ? `, đang quan tâm ${profile.destination}` : ""}.
 
 Để Đào thiết kế đúng hơn, anh/chị thích lịch trình nhẹ nghỉ dưỡng, khám phá địa phương, ăn uống hay chụp ảnh đẹp ạ?`);
   }
@@ -198,6 +225,11 @@ Anh/chị muốn Đào gợi ý lịch trình mẫu 3 ngày luôn không ạ?`);
 Anh/chị ở Đà Nẵng mấy ngày để Đào gợi ý lịch trình phù hợp hơn ạ?`);
   }
 
-  // Default only when no memory exists
+  if (hasProfile) {
+    return ask(`Dạ em đang hiểu mình quan tâm ${profile.destination || "du lịch Đà Nẵng"}.
+
+Anh/chị cho em thêm số người và thời gian ở Đà Nẵng, Đào sẽ gợi ý lịch trình phù hợp hơn ạ.`);
+  }
+
   return ask("Em là Đào – Local Travel Assistant tại Đà Nẵng. Em có thể hỗ trợ Ba Na Hills, Hội An, Huế, Omakase Experience, SIM, airport transfer và local tips. Anh/chị đi mấy người và ở Đà Nẵng mấy ngày ạ?");
 }
