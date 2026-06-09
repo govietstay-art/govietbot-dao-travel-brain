@@ -20,6 +20,31 @@ export async function POST(req) {
   const isBook = msg.includes("book") || msg.includes("đặt") || msg.includes("whatsapp") || msg.includes("zalo");
   const isFun = msg.includes("có gì vui") || msg.includes("what to do") || msg.includes("things to do");
 
+  // MEMORY FOLLOW-UP: detect number of people
+  const peopleMatch = msg.match(/(\d+)\s*(người|pax|people|persons|khách)/);
+
+  if (peopleMatch && !isThreeDays) {
+    const people = peopleMatch[1];
+
+    if (isRussian || profile.nationality === "russian") {
+      return ask(`Dạ em hiểu rồi ạ, nhóm mình ${people} người và là khách Nga.
+
+Với khách Nga, Đào sẽ ưu tiên lịch trình thoải mái, ít mệt, có thời gian nghỉ, biển, Hội An, Ba Na Hills hoặc trải nghiệm địa phương nhẹ nhàng.
+
+Nhóm mình ở Đà Nẵng mấy ngày ạ?`);
+    }
+
+    if (profile.days) {
+      return ask(`Dạ em hiểu rồi ạ, nhóm mình ${people} người, thời gian ${profile.days}.
+
+Anh/chị muốn lịch trình thiên về nghỉ dưỡng, khám phá địa phương hay chụp ảnh đẹp ạ?`);
+    }
+
+    return ask(`Dạ em hiểu rồi ạ, nhóm mình ${people} người.
+
+Anh/chị ở Đà Nẵng mấy ngày để Đào gợi ý lịch trình phù hợp hơn ạ?`);
+  }
+
   // 2. Current message intent has priority
   if (isFun) {
     return ask("Dạ Đà Nẵng có nhiều thứ vui lắm ạ. Nếu lần đầu đến, em gợi ý mình nên chia nhẹ thành: biển Mỹ Khê, Sơn Trà, Hội An buổi tối, Ba Na Hills, ăn hải sản, cafe đẹp và massage thư giãn. Anh/chị đi mấy ngày để em gợi ý lịch trình vừa sức hơn ạ?");
