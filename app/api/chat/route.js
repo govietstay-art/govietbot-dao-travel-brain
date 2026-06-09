@@ -33,7 +33,7 @@ Traveler profile:
 ${JSON.stringify(profile, null, 2)}
 
 Knowledge Base:
-${brain.slice(0, 10000)}
+${brain.slice(0, 3000)}
 
 Customer:
 ${message}
