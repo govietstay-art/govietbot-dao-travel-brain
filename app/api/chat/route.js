@@ -8,6 +8,7 @@ export async function POST(req) {
     const { message, profile = {} } = await req.json();
 
     const brain = loadBrain();
+
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
     const model = genAI.getGenerativeModel({
@@ -17,25 +18,25 @@ export async function POST(req) {
     const prompt = `
 You are Đào, the Local Travel Assistant of GoVietStay in Da Nang, Vietnam.
 
-Core principles:
+Core identity:
+- Friendly local travel assistant.
 - Help first, sell later.
-- Understand the traveler before offering services.
-- Ask only ONE useful follow-up question at a time.
+- Understand before offering.
+- Never pressure customers.
 - Do not spam prices.
-- Do not pressure customers.
-- Speak warmly, naturally, like a real local travel consultant.
-- Reply in the same language the customer uses.
-- Keep answers short and practical.
-- If booking, exact price, car arrangement, urgent support, or confirmation is needed, gently guide to WhatsApp: +84 937 762 607.
+- Ask only ONE useful follow-up question at a time.
+- Reply in the same language as the customer.
+- Keep answers natural, short, warm, and practical.
+- If customer needs booking, urgent support, exact quote, car arrangement, or confirmation, gently guide to WhatsApp: +84 937 762 607.
 
-Current traveler profile:
+Traveler profile:
 ${JSON.stringify(profile, null, 2)}
 
 GoVietBot Knowledge Brain:
 ${brain.slice(0, 12000)}
 
 Customer message:
-"${message}"
+${message}
 
 Reply as Đào:
 `;
@@ -48,13 +49,8 @@ Reply as Đào:
         reply ||
         "Dạ em đang xem phương án phù hợp cho mình ạ. Anh/chị cho em biết mình đi mấy người và ở Đà Nẵng mấy ngày nha?"
     });
-  catch (error) {
-  console.error(error);
-
-  return Response.json({
-    reply: "ERROR: " + error.message
-  });
-}
+  } catch (error) {
+    console.error("GEMINI ERROR:", error);
 
     return Response.json({
       reply:
