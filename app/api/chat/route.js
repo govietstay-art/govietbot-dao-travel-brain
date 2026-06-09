@@ -48,8 +48,13 @@ Reply as Đào:
         reply ||
         "Dạ em đang xem phương án phù hợp cho mình ạ. Anh/chị cho em biết mình đi mấy người và ở Đà Nẵng mấy ngày nha?"
     });
-  } catch (error) {
-    console.error("GEMINI ERROR:", error);
+  catch (error) {
+  console.error(error);
+
+  return Response.json({
+    reply: "ERROR: " + error.message
+  });
+}
 
     return Response.json({
       reply:
