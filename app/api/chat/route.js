@@ -4,39 +4,69 @@ export async function POST(req) {
   const { message, profile = {} } = await req.json();
   const msg = (message || "").toLowerCase();
 
+  const ask = (text) => Response.json({ reply: text });
+
+  // FAMILY PROFILE
   if (profile.travelStyle === "family" && profile.people && profile.children) {
-    return Response.json({
-      reply: `Dạ em hiểu rồi ạ.
+    return ask(`Dạ em hiểu rồi ạ.
 
-Anh/chị đi ${profile.people}, ${profile.children}, thời gian ${profile.days || "ở Đà Nẵng"}.
+Gia đình mình đi ${profile.people}, ${profile.children}, thời gian ${profile.days || "ở Đà Nẵng"}.
 
-Đào sẽ ưu tiên lịch trình gia đình thoải mái, ít mệt và phù hợp trẻ nhỏ.
+Đào sẽ ưu tiên lịch trình nhẹ, ít mệt, có thời gian nghỉ cho bé và không chạy điểm quá nhiều.
 
-Anh/chị muốn Đào tư vấn bằng tiếng Việt, English, Русский, 中文 hay 한국어 ạ?`
-    });
+Anh/chị muốn đi kiểu thư giãn, khám phá địa phương hay chụp ảnh đẹp ạ?`);
   }
 
-  let reply = "";
-
+  // RAINY DAY
   if (msg.includes("mưa") || msg.includes("rain")) {
-    reply =
-      "Nếu đang mưa ở Đà Nẵng, mình không nên ép lịch trình ngoài trời ạ. Em gợi ý đi theo hướng nhẹ nhàng hơn: cafe đẹp, massage thư giãn, ăn uống địa phương hoặc lịch trình trong nhà. Anh/chị đang ở khu Mỹ Khê, Sơn Trà hay trung tâm Đà Nẵng ạ?";
-  } else if (msg.includes("nga") || msg.includes("russian") || msg.includes("рус")) {
-    reply =
-      "Dạ em hiểu rồi ạ. Với gia đình khách Nga, Đào sẽ ưu tiên lịch trình thoải mái, ít mệt, có thời gian biển, ăn uống dễ chịu và các điểm nổi bật như Ba Na Hills, Hội An hoặc Omakase Family Experience. Gia đình mình đi mấy người và có bé bao nhiêu tuổi ạ?";
-  } else if (msg.includes("3 ngày") || msg.includes("3 days") || msg.includes("2 đêm")) {
-    reply =
-      "Dạ 3 ngày 2 đêm ở Đà Nẵng là lịch trình rất đẹp ạ. Đào sẽ không vội báo giá trước, mình nên thiết kế lịch trình theo nhóm khách trước. Anh/chị đi mấy người ạ, có trẻ em hoặc người lớn tuổi đi cùng không?";
-  } else if (msg.includes("giá") || msg.includes("bao nhiêu") || msg.includes("price")) {
-    reply =
-      "Dạ em có thể báo giá, nhưng để báo đúng và không làm anh/chị bị rối, Đào cần biết mình đi mấy người và muốn đi private tour hay ghép lịch trình nhẹ nhàng hơn ạ?";
-  } else if (msg.includes("omakase")) {
-    reply =
-      "Omakase Experience là trải nghiệm Đào thiết kế riêng cho khách. Anh/chị không cần tự chọn tour trước, Đào sẽ dựa vào số ngày, số người, sở thích, thời tiết và ngân sách để gợi ý hành trình phù hợp nhất. Anh/chị thích thiên nhiên, nghỉ dưỡng, chụp ảnh hay khám phá địa phương ạ?";
-  } else {
-    reply =
-      "Em là Đào – Local Travel Assistant tại Đà Nẵng. Em có thể hỗ trợ Ba Na Hills, Hội An, Huế, Omakase Experience, SIM, airport transfer và local tips. Anh/chị đi mấy người và ở Đà Nẵng mấy ngày ạ?";
+    return ask("Dạ nếu Đà Nẵng đang mưa thì mình không nên ép lịch trình ngoài trời ạ. Em gợi ý đi cafe đẹp, massage thư giãn, ăn món địa phương, chợ Hàn, Lotte Mart hoặc Hội An nếu mưa nhẹ. Anh/chị đang ở khu Mỹ Khê, Sơn Trà hay trung tâm ạ?");
   }
 
-  return Response.json({ reply });
+  // RUSSIAN GUESTS
+  if (msg.includes("nga") || msg.includes("russian") || msg.includes("рус")) {
+    return ask("Dạ bên em có hỗ trợ khách Nga và có thể sắp xếp Russian-speaking support khi cần ạ. Với khách Nga, em thường ưu tiên lịch trình thoải mái, ít mệt, có biển, Hội An, Ba Na Hills hoặc trải nghiệm địa phương nhẹ nhàng. Gia đình mình đi mấy người ạ?");
+  }
+
+  // 3 DAYS 2 NIGHTS
+  if (msg.includes("3 ngày") || msg.includes("3 days") || msg.includes("2 đêm")) {
+    return ask("Dạ 3 ngày 2 đêm ở Đà Nẵng là rất đẹp ạ. Em sẽ không báo giá vội, mình nên thiết kế lịch trình trước cho đúng nhu cầu. Anh/chị đi mấy người, có trẻ em hoặc người lớn tuổi đi cùng không ạ?");
+  }
+
+  // HOI AN
+  if (msg.includes("hội an") || msg.includes("hoi an")) {
+    return ask("Dạ Hội An rất hợp đi buổi chiều đến tối ạ: có thể kết hợp rừng dừa, phố cổ, ăn tối, thả hoa đăng và đi thuyền sông Hoài. Anh/chị muốn đi riêng gia đình hay ghép lịch trình nhẹ nhàng hơn ạ?");
+  }
+
+  // BA NA
+  if (msg.includes("bà nà") || msg.includes("ba na") || msg.includes("golden bridge")) {
+    return ask("Dạ Ba Na Hills & Golden Bridge nên đi buổi sáng để đỡ đông và có nhiều thời gian chụp ảnh ạ. Anh/chị cần vé, xe riêng, hướng dẫn viên hay trọn gói luôn ạ?");
+  }
+
+  // AIRPORT TRANSFER
+  if (msg.includes("sân bay") || msg.includes("airport") || msg.includes("transfer")) {
+    return ask("Dạ em hỗ trợ airport transfer ạ. Anh/chị cho em xin giờ hạ cánh, số người, số hành lý và khách sạn/khu vực cần về là em kiểm tra xe phù hợp cho mình.");
+  }
+
+  // SIM
+  if (msg.includes("sim") || msg.includes("esim") || msg.includes("internet")) {
+    return ask("Dạ bên em có hỗ trợ SIM du lịch tại Đà Nẵng, phù hợp cho khách cần internet ổn định, dễ dùng và không cài đặt phức tạp. Anh/chị cần SIM cho mấy người và dùng trong bao nhiêu ngày ạ?");
+  }
+
+  // PRICE
+  if (msg.includes("giá") || msg.includes("bao nhiêu") || msg.includes("price") || msg.includes("cost")) {
+    return ask("Dạ em báo giá được ạ. Nhưng để báo đúng và không làm anh/chị bị rối, em cần biết mình đi mấy người, ngày nào đi và muốn private tour hay chỉ cần vé/xe thôi ạ?");
+  }
+
+  // OMAKASE
+  if (msg.includes("omakase")) {
+    return ask("Dạ Omakase Experience là lịch trình Đào thiết kế riêng cho mình ạ. Anh/chị không cần tự chọn tour trước, em sẽ dựa vào số ngày, số người, thời tiết, sở thích và ngân sách để gợi ý hành trình phù hợp. Anh/chị thích thiên nhiên, biển, ăn uống, chụp ảnh hay trải nghiệm địa phương ạ?");
+  }
+
+  // WHATSAPP HANDOFF
+  if (msg.includes("book") || msg.includes("đặt") || msg.includes("whatsapp") || msg.includes("zalo")) {
+    return ask("Dạ để em hỗ trợ nhanh và kiểm tra lịch/xe/tour chính xác hơn, anh/chị có thể nhắn trực tiếp WhatsApp GoVietStay: +84 937 762 607 ạ.");
+  }
+
+  // DEFAULT
+  return ask("Em là Đào – Local Travel Assistant tại Đà Nẵng. Em có thể hỗ trợ Ba Na Hills, Hội An, Huế, Omakase Experience, SIM, airport transfer và local tips. Anh/chị đi mấy người và ở Đà Nẵng mấy ngày ạ?");
 }
