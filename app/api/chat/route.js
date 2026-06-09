@@ -1,7 +1,14 @@
+import { loadBrain } from "./knowledge";
+
 export const runtime = "nodejs";
 
 export async function POST(req) {
   const { message, profile = {} } = await req.json();
+
+  const brain = loadBrain();
+
+  console.log("===== GOVIETBOT BRAIN =====");
+  console.log(brain.slice(0,1000));
   const msg = (message || "").toLowerCase();
 
   const ask = (text) => Response.json({ reply: text });
