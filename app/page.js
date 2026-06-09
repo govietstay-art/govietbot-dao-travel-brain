@@ -22,60 +22,76 @@ export default function Home() {
     language: "",
     interest: "",
     travelStyle: "",
-    lastIntent: "",
-    destination: ""
+    destination: "",
+    lastTopic: "",
+    lastIntent: ""
   });
-
-  function detectIntent(msg) {
-    if (msg.includes("hội an") || msg.includes("hoi an")) return "hoi_an";
-    if (msg.includes("bà nà") || msg.includes("ba na") || msg.includes("golden bridge")) return "ba_na";
-    if (msg.includes("huế") || msg.includes("hue")) return "hue";
-    if (msg.includes("sân bay") || msg.includes("airport") || msg.includes("transfer")) return "airport";
-    if (msg.includes("sim") || msg.includes("esim") || msg.includes("internet")) return "sim";
-    if (msg.includes("mưa") || msg.includes("rain")) return "rain";
-    if (msg.includes("giá") || msg.includes("bao nhiêu") || msg.includes("price") || msg.includes("cost")) return "price";
-    if (msg.includes("omakase")) return "omakase";
-    if (msg.includes("book") || msg.includes("đặt") || msg.includes("whatsapp") || msg.includes("zalo")) return "book";
-    if (msg.includes("có gì vui") || msg.includes("what to do") || msg.includes("things to do")) return "fun";
-    if (msg.includes("nga") || msg.includes("russian") || msg.includes("рус")) return "russian";
-    return "";
-  }
 
   function updateProfile(message, currentProfile) {
     const msg = message.toLowerCase();
     const next = { ...currentProfile };
 
-    const intent = detectIntent(msg);
-    if (intent) next.lastIntent = intent;
+    if (msg.includes("hội an") || msg.includes("hoi an")) {
+      next.destination = "Hội An";
+      next.lastTopic = "hoi_an";
+      next.lastIntent = "destination";
+    }
 
-    // Days / duration
+    if (msg.includes("bà nà") || msg.includes("ba na") || msg.includes("golden bridge")) {
+      next.destination = "Ba Na Hills";
+      next.lastTopic = "ba_na";
+      next.lastIntent = "destination";
+    }
+
+    if (msg.includes("huế") || msg.includes("hue")) {
+      next.destination = "Huế";
+      next.lastTopic = "hue";
+      next.lastIntent = "destination";
+    }
+
+    if (msg.includes("sân bay") || msg.includes("airport") || msg.includes("transfer") || msg.includes("xe")) {
+      next.lastTopic = "airport";
+      next.lastIntent = "service";
+    }
+
+    if (msg.includes("sim") || msg.includes("esim") || msg.includes("internet")) {
+      next.lastTopic = "sim";
+      next.lastIntent = "service";
+    }
+
     if (msg.includes("3 ngày") || msg.includes("3 days") || msg.includes("2 đêm")) {
       next.days = "3 ngày 2 đêm";
-    }
-    if (msg.includes("2 ngày") || msg.includes("2 days") || msg.includes("1 đêm")) {
-      next.days = "2 ngày 1 đêm";
-    }
-    if (msg.includes("1 ngày") || msg.includes("one day") || msg.includes("day trip")) {
-      next.days = "1 ngày";
+      next.lastIntent = "duration";
     }
 
-    // People number
+    if (msg.includes("2 ngày") || msg.includes("2 days") || msg.includes("1 đêm")) {
+      next.days = "2 ngày 1 đêm";
+      next.lastIntent = "duration";
+    }
+
+    if (msg.includes("1 ngày") || msg.includes("one day") || msg.includes("day trip")) {
+      next.days = "1 ngày";
+      next.lastIntent = "duration";
+    }
+
     const peopleMatch = msg.match(/(\d+)\s*(người|khách|pax|people|persons)/);
     if (peopleMatch) {
       next.people = peopleMatch[1] + " người";
+      next.lastIntent = "people";
     }
 
-    // Vietnamese natural family formats
     if (msg.includes("2 người lớn") && (msg.includes("2 bé") || msg.includes("2 trẻ em") || msg.includes("2 con"))) {
       next.people = "4 người";
       next.children = "có 2 trẻ em";
       next.travelStyle = "family";
+      next.lastIntent = "family_profile";
     }
 
     if (msg.includes("2 người lớn") && (msg.includes("1 bé") || msg.includes("1 trẻ em") || msg.includes("1 con"))) {
       next.people = "3 người";
       next.children = "có 1 trẻ em";
       next.travelStyle = "family";
+      next.lastIntent = "family_profile";
     }
 
     if (
@@ -87,18 +103,16 @@ export default function Home() {
       msg.includes("kids")
     ) {
       if (!next.children) next.children = "có trẻ em";
+      next.travelStyle = "family";
     }
 
     if (
       msg.includes("gia đình") ||
       msg.includes("vợ") ||
       msg.includes("chồng") ||
-      msg.includes("con") ||
       msg.includes("family") ||
       msg.includes("wife") ||
-      msg.includes("husband") ||
-      msg.includes("kids") ||
-      msg.includes("children")
+      msg.includes("husband")
     ) {
       next.travelStyle = "family";
     }
@@ -110,6 +124,7 @@ export default function Home() {
       next.people = "4 người";
       next.children = "có 2 trẻ em";
       next.travelStyle = "family";
+      next.lastIntent = "family_profile";
     }
 
     if (
@@ -119,50 +134,68 @@ export default function Home() {
       next.people = "3 người";
       next.children = "có 1 trẻ em";
       next.travelStyle = "family";
+      next.lastIntent = "family_profile";
     }
 
-    // Nationality / language
     if (msg.includes("nga") || msg.includes("russian") || msg.includes("рус")) {
       next.nationality = "russian";
       next.language = "russian";
+      next.lastIntent = "nationality";
     }
 
     if (msg.includes("hàn") || msg.includes("korean") || msg.includes("한국")) {
       next.nationality = "korean";
       next.language = "korean";
+      next.lastIntent = "nationality";
     }
 
     if (msg.includes("trung") || msg.includes("chinese") || msg.includes("中国")) {
       next.nationality = "chinese";
       next.language = "chinese";
+      next.lastIntent = "nationality";
     }
 
     if (msg.includes("việt") || msg.includes("vietnamese")) {
       next.nationality = "vietnamese";
       next.language = "vietnamese";
+      next.lastIntent = "nationality";
     }
 
     if (msg.includes("india") || msg.includes("ấn độ") || msg.includes("indian")) {
       next.nationality = "indian";
       next.language = "english";
+      next.lastIntent = "nationality";
     }
 
     if (msg.includes("german") || msg.includes("đức")) {
       next.nationality = "german";
       next.language = "english";
+      next.lastIntent = "nationality";
     }
 
-    // Destination memory
-    if (msg.includes("hội an") || msg.includes("hoi an")) next.destination = "Hội An";
-    if (msg.includes("bà nà") || msg.includes("ba na") || msg.includes("golden bridge")) next.destination = "Ba Na Hills";
-    if (msg.includes("huế") || msg.includes("hue")) next.destination = "Huế";
+    if (msg.includes("nghỉ dưỡng") || msg.includes("relax") || msg.includes("resort") || msg.includes("nhẹ")) {
+      next.interest = "nghỉ dưỡng";
+      next.lastIntent = "interest";
+    }
 
-    // Interest memory
-    if (msg.includes("thiên nhiên")) next.interest = "thiên nhiên";
-    if (msg.includes("nghỉ dưỡng")) next.interest = "nghỉ dưỡng";
-    if (msg.includes("chụp ảnh")) next.interest = "chụp ảnh";
-    if (msg.includes("ẩm thực") || msg.includes("ăn")) next.interest = "ẩm thực";
-    if (msg.includes("biển") || msg.includes("beach")) next.interest = "biển";
+    if (msg.includes("chụp ảnh") || msg.includes("photo") || msg.includes("instagram") || msg.includes("đẹp")) {
+      next.interest = "chụp ảnh";
+      next.lastIntent = "interest";
+    }
+
+    if (msg.includes("ẩm thực") || msg.includes("ăn uống") || msg.includes("ăn ngon") || msg.includes("food")) {
+      next.interest = "ẩm thực";
+      next.lastIntent = "interest";
+    }
+
+    if (msg.includes("thiên nhiên") || msg.includes("nature") || msg.includes("biển") || msg.includes("beach") || msg.includes("núi")) {
+      next.interest = "thiên nhiên / biển";
+      next.lastIntent = "interest";
+    }
+
+    if (msg.includes("ăn tối") || msg.includes("ăn gì") || msg.includes("cái gì ngon") || msg.includes("món gì ngon")) {
+      next.lastIntent = "food_question";
+    }
 
     return next;
   }
