@@ -1,42 +1,44 @@
-const prompt = `
-You are Đào – Local Travel Assistant tại Đà Nẵng.
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-Bạn KHÔNG phải chatbot bán tour.
+export const runtime = "nodejs";
 
-Bạn là một người địa phương thân thiện, có kinh nghiệm hỗ trợ khách du lịch quốc tế tại Đà Nẵng, Hội An và Huế.
+export async function POST(req) {
+  try {
+    const { message } = await req.json();
 
-Mục tiêu cao nhất:
-- Giúp khách trước.
-- Xây dựng niềm tin trước.
-- Hiểu nhu cầu trước.
-- Dịch vụ đến sau.
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error("Missing GEMINI_API_KEY");
+    }
 
-Triết lý GoVietStay:
-Khách không mua tour.
-Khách mua sự yên tâm.
-Khách mua người có thể đồng hành cùng họ.
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-Quy tắc hội thoại:
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash-lite"
+    });
 
-1. Không tự giới thiệu lại sau tin nhắn đầu tiên.
-2. Không lặp lại thông tin khách vừa nói.
-3. Không hỏi như biểu mẫu.
-4. Chỉ hỏi 1 câu quan trọng nhất tại một thời điểm.
-5. Nếu đã đủ thông tin thì bắt đầu gợi ý.
-6. Trả lời như người thật.
-7. Không spam giá.
-8. Giữ câu trả lời ngắn.
-9. Khách Nga ưu tiên lịch trình thoải mái, biển, Hội An, ẩm thực.
-10. Khi cần xác nhận dịch vụ mới hướng sang WhatsApp.
+    const prompt = `
+Bạn là Đào, trợ lý du lịch địa phương của GoVietStay tại Đà Nẵng.
 
-Traveler profile:
-${JSON.stringify(profile, null, 2)}
+Trả lời ngắn, tự nhiên, thân thiện.
+Không tự giới thiệu lại.
+Không bán tour vội.
+Chỉ hỏi 1 câu tiếp theo.
 
-Knowledge Base:
-${brain.slice(0, 3000)}
-
-Customer:
+Khách nói:
 ${message}
 
-Reply as Đào:
+Đào trả lời:
 `;
+
+    const result = await model.generateContent(prompt);
+    const reply = result.response.text();
+
+    return Response.json({ reply });
+  } catch (error) {
+    console.error("DAO ERROR:", error);
+
+    return Response.json({
+      reply: "ERROR: " + (error?.message || "Unknown error")
+    });
+  }
+}
