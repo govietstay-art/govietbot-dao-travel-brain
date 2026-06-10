@@ -1,55 +1,42 @@
-import fs from "fs";
-import path from "path";
+export function getRelevantBrain(message = "") {
 
-const BRAIN_FOLDERS = [
-  "00-core",
-  "01-customer-psychology",
-  "02-market-intelligence",
-  "03-govietstay-tours",
-  "04-scenarios",
-  "05-whatsapp-flow",
-  "06-real-cases",
-  "07-language-brain",
-  "08-knowledge-base-danang",
-  "09-omakase-engine",
-  "10-govietstay-business-brain",
-  "11-tour-library",
-  "12-traveler-nationalities",
-  "12.5-vietnamese-traveler-brain",
-  "13-objection-handling",
-  "14-happy-travelers-memory"
-];
+const msg = message.toLowerCase();
 
-export function loadBrain() {
-  let brain = "";
+if (
+msg.includes("chùa") ||
+msg.includes("linh ứng") ||
+msg.includes("sơn trà")
+) {
+return `
+Đà Nẵng:
 
-  try {
-    for (const folder of BRAIN_FOLDERS) {
-      const folderPath = path.join(process.cwd(), folder);
+* Chùa Linh Ứng Sơn Trà là ngôi chùa nổi tiếng nhất.
+* Có tượng Quan Âm cao 67m.
+* View biển rất đẹp.
+* Thích hợp đi sáng sớm hoặc chiều mát.
 
-      if (!fs.existsSync(folderPath)) continue;
-
-      const files = fs.readdirSync(folderPath);
-
-      for (const file of files) {
-        if (!file.endsWith(".md")) continue;
-
-        const filePath = path.join(folderPath, file);
-
-        const content = fs.readFileSync(filePath, "utf8");
-
-        brain += `
-
-### FILE: ${folder}/${file}
-
-${content}
-
+Khi khách hỏi về chùa:
+Hãy gợi ý Chùa Linh Ứng trước rồi mới hỏi tiếp.
 `;
-      }
-    }
-  } catch (err) {
-    console.error(err);
-  }
+}
 
-  return brain;
+if (
+msg.includes("hội an") ||
+msg.includes("hoi an")
+) {
+return `
+Hội An:
+
+* Nên đi từ chiều.
+* Dạo phố cổ.
+* Đi thuyền sông Hoài.
+* Thả hoa đăng buổi tối.
+* Thưởng thức cao lầu, cơm gà Hội An.
+
+Khi khách hỏi Hội An:
+Hãy gợi ý lịch trình chiều tối trước rồi hỏi tiếp.
+`;
+}
+
+return "";
 }
