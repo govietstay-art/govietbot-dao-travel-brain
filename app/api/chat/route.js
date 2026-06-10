@@ -3,44 +3,65 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 export const runtime = "nodejs";
 
 function timeoutPromise(ms) {
-return new Promise((_, reject) =>
-setTimeout(() => reject(new Error("Gemini timeout")), ms)
-);
+  return new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Gemini timeout")), ms)
+  );
 }
 
 export async function POST(req) {
-try {
-const { message } = await req.json();
+  try {
+    const { message } = await req.json();
 
-```
-if (!process.env.GEMINI_API_KEY) {
-  throw new Error("Missing GEMINI_API_KEY");
-}
+    if (!message) {
+      return Response.json({
+        reply: "Dạ anh/chị muốn Đào gợi ý gì ở Đà Nẵng ạ?"
+      });
+    }
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error("Missing GEMINI_API_KEY");
+    }
 
-const model = genAI.getGenerativeModel({
-  model: "gemini-2.5-flash-lite"
-});
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-const prompt = `
-```
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash-lite"
+    });
 
-Bạn là Đào, trợ lý du lịch địa phương của GoVietStay tại Đà Nẵng.
+    const prompt = `
+Bạn là Đào – Local Travel Assistant của GoVietStay tại Đà Nẵng.
 
-Quy tắc:
+Tính cách:
+- Thân thiện, tự nhiên, giống người địa phương thật.
+- Trả lời ngắn gọn.
+- Không tự giới thiệu lại.
+- Không nói như robot.
+- Không bán tour vội.
+- Không hỏi nhiều câu cùng lúc.
+- Mỗi lần chỉ hỏi 1 câu tiếp theo.
+- Nếu khách hỏi chung chung, hãy gợi ý nhẹ trước rồi hỏi tiếp.
 
-* Trả lời ngắn, tự nhiên, giống người địa phương.
-* Không tự giới thiệu lại.
-* Không hỏi quá nhiều.
-* Hãy gợi ý trước, rồi hỏi 1 câu tiếp theo.
-* Không bán tour vội.
+Phong cách trả lời:
+- Tối đa 2–4 câu ngắn.
+- Ưu tiên giúp khách trước.
+- Khi phù hợp mới dẫn về GoVietStay hoặc WhatsApp.
+- Nếu không chắc, hỏi thêm 1 câu để hiểu nhu cầu.
 
-Nếu khách hỏi "đi chùa":
-Gợi ý Chùa Linh Ứng Sơn Trà, có tượng Quan Âm lớn, view biển đẹp, nên đi sáng hoặc chiều mát.
+Thông tin GoVietStay:
+- GoVietStay là local travel support tại Đà Nẵng.
+- Hỗ trợ Đà Nẵng, Hội An, Huế.
+- Có private tour, xe sân bay, SIM card, local tips.
+- Có hỗ trợ tiếng Anh và tiếng Nga.
+- Website: https://govietstay8009.pinet.com/
+- WhatsApp là kênh tư vấn chính.
 
-Nếu khách hỏi "Hội An":
-Gợi ý đi buổi chiều tối, phố cổ, sông Hoài, thả hoa đăng, ăn cao lầu hoặc cơm gà.
+Gợi ý nhanh:
+- Hội An: nên đi chiều tối, phố cổ, sông Hoài, thả hoa đăng, cao lầu/cơm gà.
+- Chùa Linh Ứng: nên đi sáng hoặc chiều mát, có tượng Quan Âm lớn, view biển đẹp.
+- Bà Nà Hills: nên đi sớm, có Golden Bridge, cáp treo, làng Pháp.
+- Huế: hợp khách thích lịch sử, cung đình, lăng tẩm, ẩm thực.
+- Rừng dừa Hội An: hợp gia đình, trẻ em, thuyền thúng vui.
+- Du thuyền sông Hàn: hợp buổi tối, ngắm cầu Rồng, cầu Tình Yêu, thành phố về đêm.
 
 Khách nói:
 ${message}
@@ -48,28 +69,24 @@ ${message}
 Đào trả lời:
 `;
 
-```
-const result = await Promise.race([
-  model.generateContent(prompt),
-  timeoutPromise(12000)
-]);
+    const result = await Promise.race([
+      model.generateContent(prompt),
+      timeoutPromise(12000)
+    ]);
 
-const reply = result.response.text();
+    const reply = result.response.text();
 
-return Response.json({
-  reply: reply || "Dạ anh/chị muốn em gợi ý theo hướng nhẹ nhàng hay khám phá nhiều hơn ạ?"
-});
-```
+    return Response.json({
+      reply:
+        reply ||
+        "Dạ anh/chị muốn em gợi ý theo kiểu nhẹ nhàng hay khám phá nhiều hơn ạ?"
+    });
+  } catch (error) {
+    console.error("DAO ERROR:", error);
 
-} catch (error) {
-console.error("DAO ERROR:", error);
-
-```
-return Response.json({
-  reply:
-    "Dạ Đào hơi chậm một chút. Anh/chị thử nhắn lại ngắn hơn giúp em nha."
-});
-```
-
-}
+    return Response.json({
+      reply:
+        "Dạ Đào hơi chậm một chút. Anh/chị nhắn lại ngắn hơn giúp em nha."
+    });
+  }
 }
